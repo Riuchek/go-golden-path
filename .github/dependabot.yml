@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /service
+    schedule:
+      interval: monthly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: terraform
+    directory: /terraform/stacks/bootstrap
+    schedule:
+      interval: monthly
+  - package-ecosystem: terraform
+    directory: /terraform/stacks/cloud-run
+    schedule:
+      interval: monthly
+  - package-ecosystem: terraform
+    directory: /terraform/stacks/gke-cluster
+    schedule:
+      interval: monthly
+  - package-ecosystem: terraform
+    directory: /terraform/stacks/gke-workload
+    schedule:
+      interval: monthly

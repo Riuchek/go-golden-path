@@ -1,0 +1,59 @@
+# Local collector. Traces go to Jaeger. Span metrics and the app's own
+# instruments go to Prometheus, which Grafana reads.
+#
+# Span metrics are named checkout.calls and checkout.duration. The
+# Prometheus exporter turns those into checkout_calls_total and
+# checkout_duration_seconds. The Grafana dashboard uses those names.
+#
+# Cumulative temporality is required so rate() is meaningful. Do not set
+# a short metrics_expiration: it resets the counter and the rate lies.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 128
+    spike_limit_mib: 32
+  batch:
+    timeout: 1s
+    send_batch_size: 64
+
+connectors:
+  span_metrics:
+    namespace: checkout
+    metrics_flush_interval: 15s
+    aggregation_temporality: AGGREGATION_TEMPORALITY_CUMULATIVE
+    dimensions:
+      - name: http.request.method
+      - name: http.response.status_code
+    histogram:
+      explicit:
+        buckets: [5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2s]
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/jaeger, span_metrics]
+    metrics:
+      receivers: [otlp, span_metrics]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus]

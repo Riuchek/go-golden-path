@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: golden-path
+    orgId: 1
+    folder: Golden path
+    type: file
+    disableDeletion: true
+    options:
+      path: /var/lib/grafana/dashboards
