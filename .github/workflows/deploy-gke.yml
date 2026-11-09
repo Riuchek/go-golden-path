@@ -57,7 +57,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       # The cluster stack is applied by hand. This workflow only rolls the workload.
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "1.17.1"
 
