@@ -4,27 +4,28 @@ updates:
     directory: /service
     schedule:
       interval: monthly
+    open-pull-requests-limit: 5
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 5
+
+  # Only directories that contain a Dockerfile Dependabot can parse.
   - package-ecosystem: docker
     directory: /service
     schedule:
       interval: monthly
-  - package-ecosystem: docker
-    directory: /deploy/local
-    schedule:
-      interval: monthly
+
+  # Local and bootstrap use a local backend, so Dependabot can terraform init.
+  # The aws stack needs a remote S3 backend config and fails Dependabot updates.
   - package-ecosystem: terraform
     directory: /tofu/stacks/bootstrap
     schedule:
       interval: monthly
+
   - package-ecosystem: terraform
     directory: /tofu/stacks/local
-    schedule:
-      interval: monthly
-  - package-ecosystem: terraform
-    directory: /tofu/stacks/aws
     schedule:
       interval: monthly

@@ -16,8 +16,8 @@ jobs:
       run:
         working-directory: service
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version-file: service/go.mod
           cache-dependency-path: service/go.sum
@@ -32,8 +32,8 @@ jobs:
     name: OpenTofu
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: opentofu/setup-opentofu@v2
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: "1.13.9"
       - name: fmt
