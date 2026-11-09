@@ -1,0 +1,50 @@
+# Collector config for ECS (LocalStack or real AWS).
+# Image: otel/opentelemetry-collector-contrib:0.165.0
+#
+# The app still speaks OTLP only. This file is the adapter: X-Ray for traces,
+# EMF/CloudWatch for metrics. Swap exporters and the binary does not change.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 64
+  batch:
+    timeout: 5s
+    send_batch_size: 64
+  resourcedetection:
+    detectors: [env, ecs, ec2]
+    timeout: 5s
+
+exporters:
+  awsxray:
+    indexed_attributes:
+      - order.sku
+  awsemf:
+    namespace: GoldenPath/Checkout
+    log_group_name: /ecs/checkout
+    dimension_rollup_option: NoDimensionRollup
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, batch]
+      exporters: [awsxray]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, batch]
+      exporters: [awsemf]

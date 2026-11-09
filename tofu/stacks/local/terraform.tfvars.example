@@ -1,0 +1,5 @@
+region               = "us-east-1"
+localstack_endpoint  = "http://localhost:4566"
+name                 = "checkout"
+image                = "checkout:local"
+state_bucket_name    = "golden-path-tfstate"

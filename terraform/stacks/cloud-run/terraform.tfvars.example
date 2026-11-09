@@ -1,7 +1,0 @@
-project_id          = "your-gcp-project"
-region              = "us-central1"
-image               = "us-central1-docker.pkg.dev/your-gcp-project/services/checkout:latest"
-public_invoker      = true
-deletion_protection = false
-min_instances       = 0
-max_instances       = 3

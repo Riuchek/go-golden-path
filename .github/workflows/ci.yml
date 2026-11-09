@@ -16,8 +16,8 @@ jobs:
       run:
         working-directory: service
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: service/go.mod
           cache-dependency-path: service/go.sum
@@ -28,21 +28,21 @@ jobs:
       - name: test
         run: go test -race ./...
 
-  terraform:
-    name: Terraform
+  tofu:
+    name: OpenTofu
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@v7
+      - uses: opentofu/setup-opentofu@v2
         with:
-          terraform_version: "1.17.1"
+          tofu_version: "1.13.9"
       - name: fmt
-        run: terraform fmt -check -recursive terraform
+        run: tofu fmt -check -recursive tofu
       - name: validate
         run: |
           set -euo pipefail
-          for stack in bootstrap cloud-run gke-cluster gke-workload; do
+          for stack in bootstrap local aws; do
             echo "==> ${stack}"
-            terraform -chdir="terraform/stacks/${stack}" init -backend=false -input=false
-            terraform -chdir="terraform/stacks/${stack}" validate
+            tofu -chdir="tofu/stacks/${stack}" init -backend=false -input=false
+            tofu -chdir="tofu/stacks/${stack}" validate
           done

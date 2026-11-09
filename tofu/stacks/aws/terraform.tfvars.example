@@ -1,0 +1,4 @@
+region        = "us-east-1"
+name          = "checkout"
+image         = "123456789012.dkr.ecr.us-east-1.amazonaws.com/checkout:sha"
+desired_count = 1

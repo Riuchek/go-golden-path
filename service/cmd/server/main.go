@@ -1,6 +1,6 @@
 // Command server is the reference workload for the golden path.
-// It speaks OTLP only. Cloud Run, GKE, and the local stack decide
-// where those spans and metrics go.
+// It speaks OTLP only. Compose, LocalStack, and ECS decide where
+// those spans and metrics go.
 package main
 
 import (

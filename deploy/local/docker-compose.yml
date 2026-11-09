@@ -1,10 +1,34 @@
-# Local trace and dashboard stack. No cloud account required.
-# From the repo root: docker compose -f deploy/local/docker-compose.yml up --build
+# Local golden path. LocalStack stands in for AWS. The app image is Chainguard.
+# From the repo root:
+#   docker compose -f deploy/local/docker-compose.yml up --build
+#
+# Then, with LocalStack healthy:
+#   make tofu-local
+
+name: golden-path
 
 services:
+  localstack:
+    image: localstack/localstack:4.7
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3,ecr,ecs,ec2,iam,sts,logs,cloudwatch,xray
+      DEBUG: "0"
+      PERSISTENCE: "0"
+    volumes:
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   checkout:
     build:
       context: ../../service
+      dockerfile: Dockerfile
+    image: checkout:local
     ports:
       - "8080:8080"
     environment:
@@ -17,6 +41,8 @@ services:
     depends_on:
       - otel-collector
 
+  # Contrib is required for span_metrics and the AWS exporters.
+  # Chainguard only publishes collector core; see Dockerfile.collector.
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.165.0
     command: ["--config=/etc/otelcol/config.yaml"]
@@ -28,14 +54,14 @@ services:
       - jaeger
 
   jaeger:
-    image: jaegertracing/all-in-one:1.62.0
+    image: jaegertracing/all-in-one:1.66.0
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
       - "16686:16686"
 
   prometheus:
-    image: prom/prometheus:v2.55.1
+    image: prom/prometheus:v3.4.2
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=6h
@@ -47,7 +73,6 @@ services:
   grafana:
     image: grafana/grafana:11.6.0
     environment:
-      # Anonymous admin is for this local stack only.
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
@@ -58,3 +83,6 @@ services:
       - ../../dashboards/grafana:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+
+volumes:
+  localstack-data:

@@ -1,5 +1,7 @@
-# Build context is the service/ directory.
-FROM golang:1.26-alpine AS build
+# Chainguard build + static runtime. CGO stays off so the binary fits the
+# static image (no libc). Digest pins belong in CI once digestabot lands;
+# :latest is the Chainguard contract for continuously rebuilt bases.
+FROM cgr.dev/chainguard/go:latest AS build
 
 WORKDIR /src
 COPY go.mod go.sum ./
@@ -10,13 +12,11 @@ ARG VERSION=dev
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath \
     -ldflags="-s -w -X main.version=${VERSION}" \
-    -o /out/server ./cmd/server
+    -o /usr/bin/server ./cmd/server
 
-# static is enough: the process talks OTLP/HTTP to a local collector and
-# does not dial public HTTPS itself.
-FROM gcr.io/distroless/static-debian12:nonroot
-COPY --from=build /out/server /server
-USER nonroot:nonroot
+FROM cgr.dev/chainguard/static:latest
+COPY --from=build /usr/bin/server /usr/bin/server
+USER nonroot
 ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["/server"]
+ENTRYPOINT ["/usr/bin/server"]

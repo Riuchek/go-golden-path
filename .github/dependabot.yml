@@ -8,19 +8,23 @@ updates:
     directory: /
     schedule:
       interval: monthly
-  - package-ecosystem: terraform
-    directory: /terraform/stacks/bootstrap
+  - package-ecosystem: docker
+    directory: /service
+    schedule:
+      interval: monthly
+  - package-ecosystem: docker
+    directory: /deploy/local
     schedule:
       interval: monthly
   - package-ecosystem: terraform
-    directory: /terraform/stacks/cloud-run
+    directory: /tofu/stacks/bootstrap
     schedule:
       interval: monthly
   - package-ecosystem: terraform
-    directory: /terraform/stacks/gke-cluster
+    directory: /tofu/stacks/local
     schedule:
       interval: monthly
   - package-ecosystem: terraform
-    directory: /terraform/stacks/gke-workload
+    directory: /tofu/stacks/aws
     schedule:
       interval: monthly

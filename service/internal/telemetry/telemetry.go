@@ -27,7 +27,7 @@ import (
 )
 
 // Providers owns the SDK lifecycle. Shutdown flushes pending spans and metrics,
-// which is what Cloud Run and Kubernetes need on SIGTERM.
+// which is what ECS and compose need on SIGTERM.
 type Providers struct {
 	shutdown func(context.Context) error
 }
@@ -75,8 +75,8 @@ func (p *Providers) Shutdown(ctx context.Context) error {
 }
 
 // TraceAttrs returns slog attributes for the span in ctx.
-// When GOOGLE_CLOUD_PROJECT is set, the Cloud Logging correlation fields
-// are included so a log line opens the right trace.
+// Cloud-vendor log correlation fields are opt-in via env so the binary
+// stays provider-agnostic by default.
 func TraceAttrs(ctx context.Context) []slog.Attr {
 	sc := trace.SpanFromContext(ctx).SpanContext()
 	if !sc.IsValid() {

@@ -1,0 +1,7 @@
+# Chainguard ships the OpenTelemetry Collector core image. Span-metrics and
+# the AWS exporters live in contrib, so the local RED dashboard and the ECS
+# sidecar still use otel/opentelemetry-collector-contrib. This Dockerfile is
+# the Chainguard path for a core collector (OTLP in, OTLP out) when that is
+# enough.
+FROM cgr.dev/chainguard/opentelemetry-collector:latest
+USER nonroot

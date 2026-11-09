@@ -1,4 +1,0 @@
-project_id        = "your-gcp-project"
-region            = "us-central1"
-state_bucket_name = "your-gcp-project-golden-path-tfstate"
-github_repository = "Riuchek/go-golden-path"

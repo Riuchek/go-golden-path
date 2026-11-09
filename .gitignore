@@ -1,4 +1,5 @@
 .terraform/
+.tofu/
 *.tfstate
 *.tfstate.*
 *.tfplan
@@ -6,6 +7,8 @@ tfplan
 crash.log
 override.tf
 override.tf.json
+*_override.tf
+localstack_providers_override.tf
 *.tfvars
 *.tfvars.json
 !*.tfvars.example
